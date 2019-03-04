@@ -3,20 +3,20 @@
     <div class='title'>
       <div class='item'>
         <i class="iconfont icon-right"></i>
-        <p>100%正品</p>
+        <p>新人首单赠小切块</p>
       </div>
       <div class='item'>
         <i class="iconfont icon-right"></i>
-        <p>专家鉴定</p>
+        <p>满100包邮 </p>
       </div>
       <div class='item'>
         <i class="iconfont icon-right"></i>
-        <p>假一赔三</p>
+        <p>全程冷链配送</p>
       </div>
-      <div class='item'>
+      <!-- <div class='item'>
         <i class="iconfont icon-right"></i>
-        <p>急速售卖</p>
-      </div>
+        <p>新鲜</p>
+      </div> -->
     </div>
     <div class='nav-body'>
       <div class='item'>
@@ -61,7 +61,7 @@ export default {
     display: flex;
     justify-content: space-around;
     .item{
-      color: #fd9291;
+      color: #C69C6D;
       font-size: 12px;
       line-height: 14px;
       display: flex;

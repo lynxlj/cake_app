@@ -11,8 +11,9 @@
     <div class="back" @click="goback" v-if="!hasTabbar">
       <i class="iconfont icon-back"></i>
     </div>
-    <div v-if="Header.home" class="liwu">
-      <i class="iconfont icon-liwu"></i>
+    <div v-if="Header.home" class="logo">
+      <!-- <i class="iconfont icon-liwu"></i> -->
+      <img src="../assets/logo.png" alt="">
     </div>
     <router-link  to="/search" tag="div" class="input"
     v-if="Header.home || Header.prolist">
@@ -171,5 +172,12 @@ i.iconfont{
     position: fixed
   }
   font-size: 22px;
+}
+.logo{
+  margin-left: 18px;
+  img{
+      width: 24px;
+      height: 24px;
+    }
 }
 </style>

@@ -1,11 +1,10 @@
 <template>
   <div class="page-swipe">
     <mt-swipe :auto="4000">
-      <mt-swipe-item class="slide1"><img src="http://static.91xinshang.com/pc/images/index/banner_06.jpg"/></mt-swipe-item>
-      <mt-swipe-item class="slide2"><img src="http://static.91xinshang.com/pc/images/index/banner_07.jpg"/></mt-swipe-item>
-      <mt-swipe-item class="slide3"><img src="http://static.91xinshang.com/pc/images/index/banner_08.jpg"/></mt-swipe-item>
-      <mt-swipe-item class="slide4"><img src="http://static.91xinshang.com/pc/images/index/banner_09.jpg"/></mt-swipe-item>
-      <mt-swipe-item class="slide5"><img src="http://static.91xinshang.com/pc/images/index/banner_01.jpg"/></mt-swipe-item>
+      <mt-swipe-item class="slide1"><img src="../../assets/banners/banner1.jpg"/></mt-swipe-item>
+      <mt-swipe-item class="slide2"><img src="../../assets/banners/banner2.jpg"/></mt-swipe-item>
+      <mt-swipe-item class="slide3"><img src="../../assets/banners/banner3.jpg"/></mt-swipe-item>
+      <mt-swipe-item class="slide4"><img src="../../assets/banners/banner4.jpg"/></mt-swipe-item>
     </mt-swipe>
   </div>
 </template>
@@ -21,16 +20,17 @@ export default {
 .page {
   &-swipe {
     .mint-swipe {
-      height: 200px;
+      height:200px;
       color: #fff;
       font-size: 30px;
       text-align: center;
       margin-bottom: 15px;
     }
     .mint-swipe-item {
-      line-height: 200px;
+      line-height:200px;
       img{
-        width: 100%
+        width: 100%;
+        height: 100%;
       }
     }
     .mint-swipe-indicator {

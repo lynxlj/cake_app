@@ -89,7 +89,7 @@ export default {
         position: absolute;
         top: 0;
         left: 25%;
-        border-bottom: 2px solid #fc655e;
+        border-bottom: 2px solid #322418;
       }
     }
   }
