@@ -1,13 +1,13 @@
 <template>
   <div class="ih-cart">
     <div class="ih-cart-navbar">
-      <i class="iconfont icon-sousuo" @touchstart='toSearch'></i>
+      <i class="iconfont icon-sousuo" @click.stop='toSearch'></i>
       <router-link
       to='/mall/category'
-      tag='div'><span>品类</span></router-link>
-      <router-link
+      tag='div'><span>分类</span></router-link>
+      <!-- <router-link
       to='/mall/brand'
-      tag='div'><span>品牌</span></router-link>
+      tag='div'><span>品牌</span></router-link> -->
       <i class="iconfont icon-msg"></i>
     </div>
     <router-view></router-view>

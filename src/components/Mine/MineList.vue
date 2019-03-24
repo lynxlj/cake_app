@@ -4,7 +4,7 @@
       <li>夺包中奖订单<i class="iconfont icon-next"></i></li>
       <li>0元抽PINKO><i class="iconfont icon-next"></i></li>
       <li>我的点心><i class="iconfont icon-next"></i></li>
-      <li>心上客服><i class="iconfont icon-next"></i></li>
+      <li>廿一客客服><i class="iconfont icon-next"></i></li>
       <li>帮助中心><i class="iconfont icon-next"></i></li>
       <li>活动报名><i class="iconfont icon-next"></i></li>
     </ul>

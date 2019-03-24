@@ -9,7 +9,9 @@ import store from './store';
 import './libs/reset.scss';
 import './libs/icon.scss';
 import * as ajax from './services';
+import { Picker } from 'mint-ui';
 
+Vue.component(Picker.name, Picker);
 Vue.prototype.$ajax = ajax;
 Vue.config.productionTip = false;
 Vue.use(MintUi);
@@ -17,7 +19,8 @@ Vue.use(MintUi);
 router.beforeEach((to, from, next) => {
   if (to.name === 'brand' ||
       to.name === 'mine' ||
-      to.name === 'category') {
+      to.name === 'category' ||
+      to.name === 'mall') {
     store.commit('changeHasHeader', false);
   } else {
     store.commit('changeHasHeader', true);

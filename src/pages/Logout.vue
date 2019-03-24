@@ -36,12 +36,15 @@ export default {
     ...mapState(['isLogin']),
   },
   methods: {
-    ...mapMutations(['changeLogStatus', 'changeHeader']),
+    ...mapMutations(['changeLogStatus', 'changeHeader','clear','totalCartCountFn']),
     logout() {
       MessageBox.confirm('退出登录')
         .then(() => {
           window.localStorage.removeItem('token');
+          window.localStorage.removeItem('order');
+          window.localStorage.removeItem('total-cart-count');
           window.localStorage.removeItem('user-token');
+          this.totalCartCountFn();
           this.changeLogStatus();
           this.$router.push('/mine');
         })

@@ -13,4 +13,6 @@ export default {
   isLogin: Boolean(window.localStorage.getItem('token')),
   cart: JSON.parse(window.localStorage.getItem('ih-cart')) || [],
   searchHistory: JSON.parse(window.localStorage.getItem('ih-search')) || [],
+  totalCartCount: window.localStorage.getItem('total-cart-count'),
+ // order:JSON.parse(window.localStorage.getItem('order')) || [],
 };

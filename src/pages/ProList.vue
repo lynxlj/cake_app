@@ -4,19 +4,18 @@
     <div class="page-infinite-wrapper" ref="wrapper" :style="{ height: wrapperHeight + 'px' }">
       <div
       class="page-infinite-list"
-      v-infinite-scroll="loadMore"
       infinite-scroll-disabled="loading"
       infinite-scroll-distance="50">
         <div
         class="ih-prolist-body-pro"
         v-for="(pro,index) in proList"
-        :id='pro.id'
+        :id='pro._id'
         :key='index'
-        @click='toDetail(pro.id)'
+        @click='toDetail(pro)'
         >
-          <img :src='pro.img'/>
-          <p>{{pro.title}}</p>
-          <span>￥{{pro.newPrice.toFixed(2)}}</span><i>￥{{pro.oldPrice.toFixed(2)}}</i>
+          <img :src='handleImg(pro.cover)'/>
+          <p>{{pro.name}}</p>
+          <span>￥{{pro.price.toFixed(2)}}</span>
         </div>
       </div>
       <p v-show="loading" class="page-infinite-loading">
@@ -34,7 +33,7 @@ export default {
   name: 'prolist',
   data() {
     return {
-      currentId: '',
+      currentName: '',
       proList: [],
       loading: false,
       wrapperHeight: 0,
@@ -53,47 +52,76 @@ export default {
   },
   props: ['id'],
   beforeRouteUpdate(to, from, next) {
-    this.getproListId(to.params.id);
-    this.$ajax.getProList(this.currentId).then((resp) => {
-      this.proList = resp;
-    });
+    this.getproListName(to.params.id);
+    // this.$ajax.getProList(this.currentName).then((resp) => {
+    //   this.proList = resp;
+    // });
     next();
   },
   watch: {
     id() {
-      this.$ajax.getProList(this.id).then((resp) => {
-        this.proList = resp;
-      });
+      // this.$ajax.getProList(this.id).then((resp) => {
+      //   this.proList = resp;
+      // });
     },
   },
   methods: {
     ...mapMutations(['changeHeader']),
-    getproListId(id) {
-      this.currentId = id;
+    getproListName(id) {
+      this.currentName = id;
     },
-    toDetail(id) {
-      this.$router.push(`/detail/${id}`);
+    toDetail(pro) {
+      window.localStorage.setItem('detail',JSON.stringify(pro))
+      this.$router.push(`/detail/${pro._id}`);
     },
-    loadMore() {
-      this.loading = true;
-      if (!this.noMore) {
-        setTimeout(() => {
-          this.$ajax.getProList(this.currentId).then((resp) => {
-            resp.map(item => this.proList.push(item));
-            this.page = this.page + 1;
-            if (this.page === resp[0].page) {
-              this.noMore = true;
-            }
-            this.loading = false;
-          });
-        }, 2500);
-      }
+    handleImg(url){
+      return 'http://localhost:3000'+url;
     },
+    // loadMore() {
+    //   this.loading = true;
+    //   if (!this.noMore) {
+    //     setTimeout(() => {
+    //       let obj = {};
+    //       obj.info=this.currentName;
+    //       obj.type='name';
+    //       this.$ajax.find(obj).then((resp) => {
+    //         if(resp.status === 200 && resp.data.res_code ===1){
+    //           console.log(resp.data.res_body.data)
+    //           if (resp.data.res_body.data.length === 0 ) {
+    //             this.noMore = true;
+    //           }
+    //           resp.data.res_body.data.map(item => this.proList.push(item));
+    //         }else{
+    //           this.$toast('搜索失败')
+    //         }
+    //       });
+    //       this.loading = false;
+    //     }, 2500);
+    //   }
+    //},
   },
   mounted() {
-    this.getproListId(this.$route.params.id);
-    this.$ajax.getProList(this.currentId).then((resp) => {
-      this.proList = resp;
+    this.getproListName(this.$route.params.id);
+    console.log('>>>',this.currentName)
+    let obj = {};
+    obj.info=this.currentName;
+		obj.type='name';
+    this.$ajax.find(obj).then((resp) => {
+      if(resp.status === 200 && resp.data.res_code ===1){
+        let store = window.localStorage.getItem("store");
+        let arr = resp.data.res_body.data;
+        let newArr = [];
+        newArr = arr.filter((item)=>{
+          return item.store == store;
+        })
+        this.proList = newArr;
+        if(resp.data.res_body.data.length === 0){
+          this.$toast('暂无搜索内容，请重新搜索');
+          this.$router.push(`/search`);
+        }
+      }else{
+        this.$toast('搜索失败')
+      }
     });
     this.wrapperHeight
     = document.documentElement.clientHeight - this.$refs.wrapper.getBoundingClientRect().top;

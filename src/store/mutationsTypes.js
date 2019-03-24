@@ -12,4 +12,7 @@ export default {
   DELETE_CART_BY_ID: 'deleteCartById',
   ADD_TO_SEARCH: 'addToSearch',
   CLEAN_SEARCH_HISTORY: 'cleanSearchHistory',
+  TOTAL_CART_COUNT_FN: 'totalCartCountFn',
+  STORAGE_ORDER:'storageOrder',
+  CLEAR:'clear',
 };

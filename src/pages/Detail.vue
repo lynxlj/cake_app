@@ -6,31 +6,28 @@
           <mt-swipe :auto="4000" :speed="600">
             <mt-swipe-item
             class="slide"
-            v-for='slide in detail.sildes'
-            :key='slide.id'
-            ><img :src="slide.src"/></mt-swipe-item>
+            v-for='item in 4'
+            :key='item'
+            ><img :src='handleImg(detail.cover)'/></mt-swipe-item>
           </mt-swipe>
         </div>
-        <p class="ih-detail-top-title">{{detail.title}}--{{currentId}}<br/>{{detail.brand}}</p>
-        <span>￥{{detail.newPrice}}</span><i>￥{{detail.oldPrice}}</i>
+        <p class="ih-detail-top-title">{{detail._id}}--{{detail.name}}</p>
+        <span>￥{{detail.price}}</span>
+        <!-- <i>￥{{detail.oldPrice}}</i> -->
       </div>
       <div class="ih-detail-content">
         <div class="ih-detail-content-text">
-          <h3>商品详情</h3>
-          <table>
+          <h3>商品评论</h3>
+          <table class="comment" v-show="detail.comment && detail.comment.length !== 0 ">
             <tr
-            v-for='item in detail.details'
-            :key='item.detailText'
+            v-for='item in detail.comment'
+            :key='item.id'
             >
-              <td class="title">{{item.detailTitle}}</td>
-              <td>{{item.detailText}}</td>
+              <td class="title">@{{item.user_name}}:</td>
+              <td>{{item.content}}</td>
             </tr>
           </table>
-          <h3>图文详情</h3>
-          <img
-          v-for='img in detail.imgs'
-          :src='img.src'
-          :key='img.id'/>
+          <div v-show="detail.comment && detail.comment.length === 0 " class="no-comment">该商品暂无评论...</div>
         </div>
       </div>
     </div>
@@ -60,24 +57,72 @@ export default {
     return {
       currentId: '',
       detail: {},
+      detailSrc:'',
     };
   },
   methods: {
+    handleImg(url){
+      return 'http://localhost:3000'+url;
+    },
     getDetailId(id) {
       this.currentId = id;
     },
-    ...mapMutations(['addToCart', 'changeHeader']),
+    ...mapMutations(['addToCart', 'changeHeader','totalCartCountFn']),
     handleAddToCart(detail) {
-      this.addToCart(detail);
-      this.$toast('加入购物车成功！');
+      //this.addToCart(detail);
+      if(!window.localStorage.getItem('user-token')){
+        this.$toast('请先登录哦');
+        return;
+      }
+      let username = JSON.parse(window.localStorage.getItem('user-token')).name;
+      this.$ajax.findData({name:username,level:0}).then((data)=>{
+        if (data.data.res_code === 1) {
+          var cart = data.data.res_body.data[0].cart;
+          var isHave = false;
+          for(var index in cart){
+            if(cart[index].id === detail._id){
+              isHave = true;
+              cart[index].cakenum = cart[index].cakenum+1;
+            }
+            
+          }
+          if(!isHave){
+            cart.unshift({
+              id:detail._id,
+              cakename:detail.name,
+              cakeprice:detail.price,
+              caketype:detail.type,
+              cakenum:1,
+              cover:detail.cover,
+            });
+          }
+          let userInfo = JSON.parse(window.localStorage.getItem('user-token')) || {};
+          userInfo.cart = cart;
+          cart = JSON.stringify(cart);
+          this.$ajax.updateData({name:username,cart:cart,level:0}).then((data)=>{
+            //console.log('>>>',data);
+            if(data.data.res_code===1){
+              this.$toast('加入购物车成功');
+              window.localStorage.setItem('user-token', JSON.stringify(userInfo));
+              this.totalCartCountFn();
+            }else{
+              this.$toast("加入购物车失败");
+            }
+          });
+        }
+      });
     },
   },
   mounted() {
-    this.getDetailId(this.$route.params.id);
-    this.$ajax.getDetailById(this.currentId).then((resp) => {
-      this.detail = resp;
-      this.detail.id = this.currentId;
-    });
+    // this.getDetailId(this.$route.params.id);
+    // this.$ajax.getDetailById(this.currentId).then((resp) => {
+    //   this.detail = resp;
+    //   this.detail.id = this.currentId;
+    // });
+    //获取商品详情
+    this.detail = JSON.parse(window.localStorage.getItem('detail'));
+    //console.log('detail',this.detail)
+    this.detailSrc = this.handleImg(this.detail.cover);
   },
   beforeRouteEnter(to, from, next) {
     next((vm) => {
@@ -143,7 +188,6 @@ export default {
       tr{
         font-size: 16px;
         .title{
-          display: inline-block;
           font-size: 12px;
           margin-right: 20px;
         }
@@ -165,7 +209,6 @@ export default {
       display: inline-block;
       width: 50px;
       height: 50px;
-      margin-left: 5px;
     }
     &-middle,&-right{
       line-height: 50px;
@@ -189,5 +232,26 @@ export default {
       }
     }
   }
+}
+.comment{
+  display: block;
+  tr{
+    display: block;
+    border-bottom: 1px #322418 solid;
+    margin-bottom: 10px;
+    background: #e6e6e6;
+  }
+  td{
+    display: block;
+    padding: 0 20px 5px;
+  }
+  .title{
+    padding: 5px 5px;
+  }
+}
+.no-comment{
+  padding-top:30px; 
+  text-align: center;
+  color: #322418;
 }
 </style>

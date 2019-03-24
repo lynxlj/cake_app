@@ -4,7 +4,7 @@
       <i class="iconfont icon-sousuo"></i>
       <input
       type="text"
-      placeholder="GUCCI"
+      placeholder="请输入你需要查找的商品"
       ref='searchInput'
       v-model="searchResult"
       />
@@ -39,7 +39,7 @@
             没有搜索历史
           </div>
         </div>
-        <div>
+        <!-- <div>
           <h3>热门搜索:</h3>
           <i
           class="iconfont icon-update-copy"
@@ -54,7 +54,7 @@
             {{item.title}}
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -81,18 +81,32 @@ export default {
     },
   },
   created() {
-    this.getHotHistory();
+   // this.getHotHistory();
   },
   methods: {
     ...mapMutations(['addToSearch', 'cleanSearchHistory', 'changeHeader']),
-    getHotHistory() {
-      this.$ajax.getHotSearch().then((resp) => {
-        this.hotSearch = resp;
-      });
-    },
-    toProductsList(id) {
-      this.addToSearch({ title: id });
-      this.$router.push(`/prolist/${id}`);
+    // getHotHistory() {
+    //   this.$ajax.getHotSearch().then((resp) => {
+    //     this.hotSearch = resp;
+    //   });
+    // },
+    toProductsList(name) {
+      this.addToSearch({ title: name });
+      this.$router.push(`/prolist/${name}`);
+      // let obj= {};
+      // obj.info=this.name;
+      // obj.type='name';
+      // this.$ajax.find(obj).then((resp) => {
+      //   if(resp.status === 200 && resp.data.res_code ===1){
+      //     if(resp.data.res_body.data.length === 0){
+      //       this.$toast('暂无搜索内容，请重新搜索');
+      //     }else{
+      //       this.$router.push(`/prolist/${name}`);
+      //     }          
+      //   }else{
+      //     this.$toast('搜索失败')
+      //   }
+      // });
     },
     updateHotSearch() {
       this.getHotHistory();
@@ -122,7 +136,9 @@ export default {
   .input{
     width: 60%;
     margin-left: 5%;
-    position: relative;
+    position: fixed;
+    top: 10px;
+    left: 30px;
     input{
       padding-left: 15%;
       height: 26px;
@@ -141,7 +157,6 @@ export default {
   }
 }
 .ih-search-content{
-  margin-top: 20px;
   h3{
     font-weight: bolder;
     font-size: 18px;

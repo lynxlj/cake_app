@@ -18,9 +18,9 @@
     <router-link  to="/search" tag="div" class="input"
     v-if="Header.home || Header.prolist">
       <i class="iconfont icon-sousuo"></i>
-      <input type="text" placeholder="GUCCI" />
+      <input type="text" placeholder="来搜索吧" />
     </router-link>
-    <span v-if="Header.cart">购物车({{totalCount}})</span>
+    <span v-if="Header.cart">购物车({{totalCartCount}})</span>
     <router-link
       to="/cart"
       class="iconfont icon-cart"
@@ -32,7 +32,7 @@
       class="ih-badge"
       v-if="Header.detail"
     >
-    {{totalCount | maxNumber}}
+    {{totalCartCount | maxNumber}}
     </span>
     <span v-if="Header.detail">商品详情</span>
     <span v-if="Header.tool">设置</span>
@@ -51,7 +51,7 @@ import {
 export default {
   name: 'bodyheader',
   computed: {
-    ...mapState(['Header', 'hasHeader', 'hasTabbar']),
+    ...mapState(['Header', 'hasHeader', 'hasTabbar','totalCartCount']),
     ...mapGetters(['totalCount']),
   },
   filters: {
@@ -61,7 +61,8 @@ export default {
   },
   methods: {
     goback() {
-      this.$router.back();
+      if(this.Header.search) this.$router.push(`/home`);
+      else this.$router.back();
     },
   },
 };
@@ -108,7 +109,7 @@ div.back{
     text-align: center;
     background-color: $font-color-active;
     line-height: 15px;
-    font-size: 14px;
+    font-size: 12px;
     width: 15px;
     height: 15px;
     border-radius: 50%;

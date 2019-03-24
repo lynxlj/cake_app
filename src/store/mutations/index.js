@@ -13,8 +13,8 @@ export default {
   [types.INCREASE_NUM](state, id) {
     state.cart.map((item) => {
       const newItem = item;
-      if (item.id === id) {
-        newItem.num += 1;
+      if (item.id == id) {
+        newItem.cakenum += 1;
       }
       return newItem;
     });
@@ -22,11 +22,11 @@ export default {
   [types.REDUCE_NUM](state, id) {
     state.cart.map((item) => {
       const newItem = item;
-      if (item.id === id) {
+      if (item.id == id) {
         if (item.num > 1) {
-          newItem.num -= 1;
+          newItem.cakenum -= 1;
         } else {
-          newItem.num = 1;
+          newItem.cakenum = 1;
         }
       }
       return newItem;
@@ -96,5 +96,22 @@ export default {
   [types.CLEAN_SEARCH_HISTORY](state) {
     state.searchHistory = [];
     window.localStorage.removeItem('ih-search');
+  },
+  [types.TOTAL_CART_COUNT_FN](state) {
+    let total = 0;
+    let arr = JSON.parse(window.localStorage.getItem('user-token')) || [];
+    if(arr.length !== 0){
+      JSON.parse(window.localStorage.getItem('user-token')).cart.map((item,index) => {
+        total = total + item.cakenum;
+      })
+    }
+    state.totalCartCount = total;
+    window.localStorage.setItem('total-cart-count',total);
+  },
+  [types.STORAGE_ORDER](state, order) {
+    state.order = order;
+  },
+  [types.CLEAR](state, opt) {
+    state[opt] = '';
   },
 };

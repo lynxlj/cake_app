@@ -10,6 +10,7 @@ Vue.use(vuex);
 const syncStorage = store => store.subscribe((mutation, sta) => {
   if (mutation.type === 'storageUserinfo') {
     window.localStorage.setItem('user-token', JSON.stringify(sta.userinfo));
+    window.localStorage.setItem('ih-cart', JSON.stringify(sta.userinfo.cart));
   }
   window.localStorage.setItem('ih-cart', JSON.stringify(sta.cart));
   window.localStorage.setItem('ih-search', JSON.stringify(sta.searchHistory));

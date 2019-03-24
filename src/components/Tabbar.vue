@@ -6,7 +6,7 @@
     :to='route.path'
     tag='div'
     >
-    <span class="ih-badge" v-if="route.path === '/cart'">{{totalCount | maxNumber}}</span>
+    <span class="ih-badge" v-if="route.path === '/cart'">{{totalCartCount || 0 | maxNumber}}</span>
     <i :class='`iconfont icon-${route.icon}`'></i>
     {{route.text}}
     </router-link>
@@ -15,12 +15,15 @@
 
 <script>
 import {
+  mapState,
   mapGetters,
+  mapMutations
 } from 'vuex';
 
 export default {
   name: 'Tabbar',
   computed: {
+    ...mapState(['totalCartCount']),
     ...mapGetters(['totalCount']),
     routes() {
       return this.$router.options.routes.filter(route => route.isTabbar === true);

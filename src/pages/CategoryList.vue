@@ -1,50 +1,93 @@
 <template>
   <div>
-    <h3 class="cateh3">Type {{currentId || 1}}</h3>
+    <h3 class="cateh3">{{currentText}}</h3>
     <div class="ih-cart-categorylist-left-types">
       <div
       class="ih-cart-categorylist-left-types-type"
       v-for='type in CategoryTypeList'
       :key='type.id'
       :id='type.id'
-      @click='toProductsList(type.id)'
+      @click='toDetail(type)'
       >
-        <img :src='type.img' alt="">
-        <p>{{type.title}}</p>
+        <img :src='handleImg(type.cover)' alt="">
+        <p class="price">价格：¥{{type.price}}</p>
+        <p>名称：{{type.name}}</p>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { Toast } from 'mint-ui';
+
 export default {
   name: 'CategoryList',
   data() {
     return {
-      currentId: '',
+      currentText: '',
       CategoryTypeList: [],
     };
   },
   beforeRouteUpdate(to, from, next) {
-    this.getCategoryTypeListId(to.params.id);
-    this.$ajax.getCategoryTypeList(this.currentId).then((resp) => {
-      this.CategoryTypeList = resp;
-    });
+     this.getCategoryTypeListText(to.params.id);
+    // this.$ajax.getCategoryTypeList(this.currentId).then((resp) => {
+    //   this.CategoryTypeList = resp;
+    // });
+    let obj = {};
+    obj.info=this.currentText;
+		obj.type='type';
+		this.$ajax.find(obj).then((data)=>{
+			if(data.status === 200 && data.data.res_code ===1){
+        let store = window.localStorage.getItem("store");
+        let arr = data.data.res_body.data;
+        let newArr = [];
+        newArr = arr.filter((item)=>{
+          return item.store == store;
+        })
+        this.CategoryTypeList = newArr;
+      }else{
+        Toast('获取列表失败')
+      }
+		});
     next();
   },
   methods: {
-    getCategoryTypeListId(id) {
-      this.currentId = id;
+    handleImg(url){
+      return 'http://localhost:3000'+url;
     },
-    toProductsList(id) {
-      this.$router.push(`/prolist/${id}`);
+    getCategoryTypeListText(text) {
+      this.currentText= text;
+    },
+    //进入详情页
+    toDetail(item) {
+      //console.log('item',item)
+      //将商品详情存入本地
+      window.localStorage.setItem('detail',JSON.stringify(item))
+      this.$router.push(`/detail/${item._id}`);
     },
   },
   mounted() {
-    this.getCategoryTypeListId(this.$route.params.id);
-    this.$ajax.getCategoryTypeList(this.currentId).then((resp) => {
-      this.CategoryTypeList = resp;
-    });
+     this.getCategoryTypeListText(this.$route.params.id);
+    // this.$ajax.getCategoryTypeList(this.currentId).then((resp) => {
+    //   this.CategoryTypeList = resp;
+    // });
+    let obj = {};
+    obj.info=this.currentText;
+		obj.type='type';
+		this.$ajax.find(obj).then((data)=>{
+      //console.log('>>>2',data);
+      if(data.status === 200 && data.data.res_code ===1){
+        let store = window.localStorage.getItem("store");
+        let arr = data.data.res_body.data;
+        let newArr = [];
+        newArr = arr.filter((item)=>{
+          return item.store == store;
+        })
+        this.CategoryTypeList = newArr;
+      }else{
+        Toast('获取列表失败')
+      }
+		});
   },
 };
 </script>
@@ -56,20 +99,23 @@ export default {
   }
 .ih-cart-categorylist-left{
   &-types{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
+    // display: flex;
+    // flex-wrap: wrap;
+    // justify-content: space-around;
     &-type{
-      width: 30%;
+      display: inline-block;
+      width: 50%;
       height: 90px;
-      margin-bottom: 10px;
+      margin-bottom: 30px;
       text-align: center;
+      font-size: 12px;
+      color: #322418;
       img{
         width: 60px;
         height: 60px;
       }
-      p{
-        font-size: 14px;
+      .price{
+        color: #C69C6D;
       }
     }
   }

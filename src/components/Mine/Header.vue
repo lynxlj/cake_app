@@ -11,24 +11,48 @@
   </div>
   <div v-if="isLogin" class="content">
     <div class="head-portrait">
-      <img src="" alt="">
+      <img src="../../images/header.png" alt="">
     </div>
     <div class="user-info">
-      <p class="user-name">{{userinfo.username}}</p>
-      <span class="user-level">{{userinfo.level|userlevel}}</span>
+      <p class="user-name">{{userinfo.name}}</p>
+      <!-- <span class="user-level">{{userinfo.level|userlevel}}</span> -->
     </div>
   </div>
   <div v-if="!isLogin" class="notlogin">
     <p class="prompt">您还没有登录哦</p>
     <button @click="openLoginBox">立即登录</button>
+    <a @click="openRegisterBox" class="register_a">现在注册</a>
   </div>
   <div v-if="showLoginBox" class="loginbox">
     <div>
       <span class="close" @click="closeLoginBox">X</span>
-      <h1 class="logo"><img src="https://gss0.bdstatic.com/-4o3dSag_xI4khGkpoWK1HF6hhy/baike/c0%3Dbaike80%2C5%2C5%2C80%2C26/sign=1d476cc134dbb6fd3156ed74684dc07d/0b46f21fbe096b63bab9866a01338744ebf8ac6c.jpg"></h1>
+      <h1 class="logo"><img src="../../images/header.png"></h1>
       <input type="text" v-model="inputname" placeholder="输入用户名">
       <input type="password" v-model="inputpassword" placeholder="输入密码">
+      <a class="forget-password" @click="handleForgetPwdFn()">忘记密码？</a>
       <mt-button type="danger" size="large" @click="login">登录</mt-button>
+    </div>
+  </div>
+  <div v-if="showRegisterBox" class="loginbox">
+    <div>
+      <span class="close" @click="closeRegisterBox">X</span>
+      <h1 class="logo"><img src="../../images/header.png"></h1>
+      <input type="text" v-model="registername" placeholder="输入用户名">
+      <input type="text" v-model="registertruename" placeholder="输入真实姓名方便找回密码">
+      <input type="password" v-model="registerpasswordone" placeholder="输入密码">
+      <input type="password" v-model="registerpasswordtwo" placeholder="再次输入密码">
+      <mt-button type="danger" size="large" @click="register">注册</mt-button>
+    </div>
+  </div>
+  <div v-if="showFindPwd" class="findbox">
+    <div>
+      <span class="close" @click="closeFindBox">X</span>
+      <h1 class="logo"><img src="../../images/header.png"></h1>
+      <input type="text" v-model="findname" placeholder="输入用户名">
+      你的真实姓名：<input type="text" v-model="findtruename" placeholder="密保问题答案">
+      <input type="password" v-model="findpasswordone" placeholder="输入密码">
+      <input type="password" v-model="findpasswordtwo" placeholder="再次输入密码">
+      <mt-button type="danger" size="large" @click="find">修改</mt-button>
     </div>
   </div>
 </div>
@@ -40,12 +64,12 @@ import {
   mapState,
   mapMutations,
 } from 'vuex';
-import { login } from '@/services';
+import { login ,register,updateData,findData} from '@/services';
 
 export default {
   name: 'mineheader',
   computed: {
-    ...mapState(['isLogin', 'userinfo']),
+    ...mapState(['isLogin', 'userinfo','order']),
   },
   filters: {
     userlevel(n) {
@@ -60,28 +84,141 @@ export default {
   data() {
     return {
       showLoginBox: false,
+      showRegisterBox: false,
       inputname: '',
       inputpassword: '',
+      registername: '',
+      registertruename:'',
+      registerpasswordone: '',
+      registerpasswordtwo: '',
+      orderNow:Array,
+      showFindPwd:false,
+      findname: '',
+      findtruename: '',
+      findpasswordone: '',
+      findpasswordtwo: '',
     };
   },
   methods: {
-    ...mapMutations(['changeLogStatus', 'storageUserinfo']),
+    ...mapMutations(['changeLogStatus', 'storageUserinfo','storageOrder','totalCartCountFn']),
     openLoginBox() {
       this.showLoginBox = true;
+    },
+    openRegisterBox() {
+      this.showRegisterBox = true;
     },
     closeLoginBox() {
       this.showLoginBox = false;
     },
+    closeRegisterBox() {
+      this.showRegisterBox = false;
+    },
+    closeFindBox() {
+      this.showFindPwd = false;
+    },
+    //修改密码
+    find(){
+      if (this.findname.length === 0) {
+        Toast('请输入用户名');
+        return;
+      }
+      if (this.findtruename.length === 0) {
+        Toast('请输入真实姓名修改密码');
+        return;
+      }
+      if (this.findpasswordone === '' || this.findpasswordtwo === '') {
+        Toast('请输入密码');
+        return;
+      }
+      if (this.findpasswordone != this.findpasswordtwo) {
+        Toast('两次密码输入不一致');
+        return;
+      }
+      if(this.findname.length !== 0 && this.findpasswordone.length !== 0 && this.findpasswordone == this.findpasswordtwo && this.findtruename.length !==0){
+        findData({name:this.findname,level:0}).then(data => {
+          console.log(data)
+          if(data.status === 200){
+            if(data.data.res_body.data[0].true_name == this.findtruename){
+              updateData({name:this.findname,password:this.findpasswordone,level:0,true_name:this.findtruename}).then(data => {
+                if(data.status === 200){
+                  Toast('修改成功')
+                  this.closeFindBox();
+                }else{
+                  Toast('修改失败')
+                }
+              })
+            }else{
+              Toast('真实姓名与注册时不相符')
+            }
+          }else{
+            Toast('网络错误')
+          }
+        })
+      }
+    },
+    //忘记密码
+    handleForgetPwdFn(){
+      console.log('forget')
+      this.showLoginBox = false;
+      this.showFindPwd = true;
+    } ,
+    //用户注册
+    register(){
+      if (this.registername.length === 0) {
+        Toast('请输入用户名');
+        return;
+      }
+      if (this.registerpasswordone === '' || this.registerpasswordtwo === '') {
+        Toast('请输入密码');
+        return;
+      }
+      if (this.registerpasswordone != this.registerpasswordtwo) {
+        Toast('两次密码输入不一致');
+        return;
+      }
+      if (this.registername.length !== 0 && this.registerpasswordone.length !== 0 && this.registerpasswordone == this.registerpasswordtwo && this.registertruename.length !==0) {
+        register({name: this.registername,true_name:this.registertruename ,password: this.registerpasswordone , level: 0}).then(data => {
+          if(data.data.res_code ===1 ){
+            Toast('注册成功!');
+            this.closeRegisterBox();
+          }else{
+            Toast('注册失败!');
+          }
+        })
+      }
+    },
+    //用户登录
     login() {
       if (this.inputname.length !== 0 && this.inputpassword.length !== 0) {
-        login({ username: this.inputname, password: this.inputpassword })
+        login({ name: this.inputname, password: this.inputpassword , level: 0})
           .then((data) => {
-            if (data.islogin === true) {
-              window.localStorage.setItem('token', data.token);
-              const userinfo = data.info;
+            console.log('>>>',data)
+            // if (data.islogin === true) {
+            //   window.localStorage.setItem('token', data.token);
+            //   const userinfo = data.info;
+            //   this.changeLogStatus();
+            //   this.storageUserinfo(userinfo);
+            //   this.showLoginBox = false;
+            //   Toast('登录成功');
+            // } else {
+            //   Toast('登录失败');
+            // }
+            if (data.status === 200 && data.data.res_code === 1) {
+              let token = data.data.res_body.data.name+'lynxzuicool-WozhenndeshigeTiancai';
+              window.localStorage.setItem('token', token);
+              window.localStorage.setItem('order', JSON.stringify(data.data.res_body.data.cake));
+              this.storageOrder(data.data.res_body.data.cake);
+              this.orderNow = data.data.res_body.data.cake;
+              this.totalCartNum = data.data.res_body.data.cart.reduce((result, item) => {
+                const newResult = result + item.num;
+                return newResult;
+              }, 0);
+              window.localStorage.setItem('ih-cart', JSON.stringify(data.data.res_body.data.cart));
+              const userinfo = data.data.res_body.data;
               this.changeLogStatus();
               this.storageUserinfo(userinfo);
               this.showLoginBox = false;
+              this.totalCartCountFn();
               Toast('登录成功');
             } else {
               Toast('登录失败');
@@ -106,7 +243,7 @@ export default {
   background-image: url('https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540823319914&di=373f158625f3ae900695e43a964c343f&imgtype=0&src=http%3A%2F%2Fpic31.photophoto.cn%2F20140407%2F0008020997552247_b.jpg');
   display: flex;
   flex-direction: column;
-  .loginbox{
+  .loginbox,.findbox{
     position: fixed;
     bottom: 0;
     left: 0;
@@ -120,7 +257,7 @@ export default {
       position: absolute;
       bottom: 0;
       left: 0;
-      height: 40%;
+      // height: 40%;
       width: 100%;
       background-color: white;
       h1{
@@ -141,7 +278,7 @@ export default {
         border-radius: 5px;
         margin-bottom: 3%;
         width: 100%-5%;
-        height: 12%;
+        height: 30px;
         padding-left: 5%;
       }
     }
@@ -186,7 +323,11 @@ export default {
       width: 17.5%;
       height: 50%;
       border-radius: 50%;
-      background-color: #f2ac9c;
+      background-color: #fff;
+      img{
+        margin-left: 2px;
+        margin-top: 3px;
+      }
     }
       .user-info{
       .user-name{
@@ -206,5 +347,21 @@ export default {
       }
     }
   }
+  .register_a{
+    color: #ffffff;
+    font-size: 12px;
+  }
+}
+.forget-password{
+  display: block;
+  margin: 10px;
+  margin-left: 250px;
+  font-size: 12px;
+}
+.findbox{
+  div{
+    font-size: 12px;
+  }
+  
 }
 </style>

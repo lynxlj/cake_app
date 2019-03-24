@@ -18,9 +18,11 @@ export default {
     }, 0);
   },
   totalCount(state) {
-    return state.cart.reduce((result, item) => {
-      const newResult = result + item.num;
-      return newResult;
-    }, 0);
+    if(state.isLogin){
+      return state.userinfo.cart.reduce((result, item) => {
+        const newResult = result + item.cakenum;
+        return newResult;
+      }, 0);
+    }
   },
 };

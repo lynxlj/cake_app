@@ -3,7 +3,7 @@
     <div class="ih-cart-categorylist-left">
       <router-link
       v-for='cate in categorylist'
-      :to='`/mall/category/${cate.id}`'
+      :to='`/mall/category/${cate.text}`'
       :key='cate.id'
       :id='cate.id'
       tag='div'>{{cate.text}}</router-link>
@@ -18,13 +18,34 @@
 export default {
   data() {
     return {
-      categorylist: [],
+      categorylist: [
+        {
+          id:981,
+          text:'蛋糕'
+        },
+         {
+          id:982,
+          text:'冰淇淋'
+        },
+         {
+          id:983,
+          text:'咖啡'
+        },
+         {
+          id:984,
+          text:'面包'
+        }
+      ],
     };
   },
   mounted() {
-    this.$ajax.getCategorylist().then((resp) => {
-      this.categorylist = resp;
-      this.$router.push(`/mall/category/${resp[0].id}`);
+    console.log('lynxStore>>>>',window.localStorage.getItem("store"))
+    let obj = {};
+    obj.info= '蛋糕';
+		obj.type='type';
+		this.$ajax.find(obj).then((data)=>{
+      //console.log('>>>',data);
+      this.$router.push(`/mall/category/${this.categorylist[0].text}`);
     });
   },
 };
@@ -40,7 +61,7 @@ export default {
   border-right:none;
   border-top: 1px solid $border-color;
   border-bottom: 1px solid $border-color;
-  font-size: 20px;
+  font-size: 18px;
 }
 .ih-cart{
   height: 100%;
