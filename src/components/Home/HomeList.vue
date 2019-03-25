@@ -1,29 +1,29 @@
 <template>
   <div class="homelist">
     <div class="title">
-    <img src="../../homelink.jpg">
+    <img src="../../images/nav.jpg">
     </div>
     <div class="fashion-guide">
-      <h3>潮流导购<span>Fashion Guide</span></h3>
+      <h3>廿一客<span>分区</span></h3>
       <div class="listwrapper">
         <div
           class="list"
         >
-          <div class='item'>
-            <img src="http://static.91xinshang.com/pc/images/index/boutique_02.png">
-            <p>轻奢品牌</p>
+          <div class='item' @click="toMallList('蛋糕')">
+            <img src="../../images/cake.jpg">
+            <p>蛋糕</p>
           </div>
-          <div class='item'>
-            <img src="http://static.91xinshang.com/pc/images/index/boutique_01.png?v=01">
-            <p>重奢品牌</p>
+          <div class='item' @click="toMallList('冰淇淋')">
+            <img src="../../images/ice.jpg">
+            <p>冰淇淋</p>
           </div>
-          <div class='item'>
-            <img src="http://static.91xinshang.com/pc/images/index/boutique_02.png">
-            <p>轻奢品牌</p>
+          <div class='item' @click="toMallList('面包')">
+            <img src="../../images/bread.jpg">
+            <p>面包</p>
           </div>
-          <div class='item'>
-            <img src="http://static.91xinshang.com/pc/images/index/boutique_01.png?v=01">
-            <p>重奢品牌</p>
+          <div class='item' @click="toMallList('咖啡')">
+            <img src="../../images/coffee.jpg">
+            <p>咖啡</p>
           </div>
         </div>
       </div>
@@ -35,6 +35,9 @@
 export default {
   name: 'homelist',
   methods: {
+    toMallList(type){
+      this.$router.push(`/mall/category/${type}`);
+    }
   },
 };
 
@@ -44,15 +47,20 @@ export default {
 .homelist{
   width: 100%;
   .title{
+    width: 100%;
+    height: 110px;
     text-align: center;
     margin-bottom: 15px;
+    border: 2px solid #C69C6D;
+    border-radius: 20px;
     img{
-    width: 90%;
+    width: 50%;
     height: auto;
     }
   }
   .fashion-guide{
     padding-left: 15px;
+    padding-bottom: 30px;
     h3{
       font-size: 20px;
       font-weight: bold;
@@ -68,7 +76,7 @@ export default {
       overflow-y: hidden;
       .list{
         display: flex;
-        width: 200%;
+        width: 150%;
         .item{
           img{
             width: 100%;
@@ -80,7 +88,7 @@ export default {
             text-align: center;
           }
           margin-right: 15px;
-          width:17%;
+          width:25%;
         }
       }
     }

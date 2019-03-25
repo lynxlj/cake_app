@@ -153,7 +153,7 @@ export default {
     border-bottom: 1px solid $border-color;
     &-sildes{
       width: 100%;
-      height: 300px;
+      height: 370px;
       img{
         width: 100%;
       }

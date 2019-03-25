@@ -5,15 +5,17 @@
       <span class="choose-store-name">{{chooseStore}}</span>
       <span class="choose-store-confirm" @click="handleConfirmStore">点击选择店铺</span>
     </div>
-    <mt-picker 
-    v-show="isShowPicker"
-    :slots="slots" 
-    :visibleItemCount=pickerNum
-    @change="getValues"
-    class="g-picker"
-    ></mt-picker>
+    <div v-show="isShowPicker">
+      <mt-picker 
+      ref="picker"
+      :slots="slots" 
+      :visibleItemCount=pickerNum
+      class="g-picker"
+      ></mt-picker>
+      <div class="picker-confirm" @click.stop='handlegetPickerValue'>确定选择</div>
+    </div>
     <HomeSwipe />
-    <SecondNav />
+    <!-- <SecondNav /> -->
     <HomeList />
   </div>
 </template>
@@ -40,16 +42,18 @@ export default {
       chooseStore:'',
       slots: [{
           flex: 1,
-          values: [1,2,3,4],
+          values: [],
           className: 'slot1',
-          textAlign: 'center'
+          textAlign: 'center',
+          defaultIndex: 0,
         }],
       isShowPicker:false,
+      isChoose:false,
     };
   },
   created(){
+    this.isChoose = false;
     this.$ajax.getAllStore().then(data => {
-      console.log(data)
       if(data.status === 200){
         let arr = data.data.res_body.data;
         let arrNew = [];
@@ -57,18 +61,27 @@ export default {
           arrNew.push(item.name)
         })
         this.slots[0].values = arrNew;
-        window.localStorage.setItem('store',arrNew[0])
+        let _index = JSON.parse(window.localStorage.getItem('storeIndex'))||0;
+        this.chooseStore = this.slots[0].values[_index]
+        window.localStorage.setItem('store',arrNew[_index])
+        this.$set(this.slots[0],'defaultIndex',_index);
       }else{
         console.log('获取店铺列表失败')
       }
     })
   },
   methods:{
-    getValues(picker, values) {
-      this.chooseStore = values[0]
-      this.isShowPicker=false
-      console.log(values[0])
-      window.localStorage.setItem('store',values[0])
+    handlegetPickerValue() {
+      this.chooseStore = this.$refs.picker.getValues()[0]
+      this.isShowPicker=false;
+      let _index = 0;
+      this.slots[0].values.map((item,index) => {
+        if(item == this.$refs.picker.getValues()[0]){
+          _index = index;
+        }
+      })
+      window.localStorage.setItem('storeIndex',_index)
+      window.localStorage.setItem('store',this.$refs.picker.getValues()[0])
     },
     //选择店铺
     handleConfirmStore(){
@@ -85,7 +98,7 @@ export default {
   position: fixed;
   background: #fff;
   z-index: 100;
-  bottom: 0;
+  bottom: 40px;
 }
 .choose-store{
   height: 30px;
@@ -102,5 +115,17 @@ export default {
     float:right;
     margin-right: 10px;
   }
+}
+.picker-confirm{
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 40px;
+  background: #C69C6D;
+  text-align: center;
+  line-height: 40px;
+  z-index: 200;
+  color: #fff;
+  font-size: 16px;
 }
 </style>
