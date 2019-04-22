@@ -115,7 +115,7 @@ export default {
           return item.store == store;
         })
         this.proList = newArr;
-        if(resp.data.res_body.data.length === 0){
+        if(this.proList.length === 0){
           this.$toast('暂无搜索内容，请重新搜索');
           this.$router.push(`/search`);
         }

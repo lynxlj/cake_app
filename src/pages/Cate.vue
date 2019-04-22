@@ -3,10 +3,10 @@
     <div class="ih-cart-categorylist-left">
       <router-link
       v-for='cate in categorylist'
-      :to='`/mall/category/${cate.text}`'
-      :key='cate.id'
-      :id='cate.id'
-      tag='div'>{{cate.text}}</router-link>
+      :to='`/mall/category/${cate._id}`'
+      :key='cate._id'
+      :id='cate._id'
+      tag='div'>{{cate.name}}</router-link>
     </div>
       <div class="ih-cart-categorylist-right">
         <router-view></router-view>
@@ -18,35 +18,24 @@
 export default {
   data() {
     return {
-      categorylist: [
-        {
-          id:981,
-          text:'蛋糕'
-        },
-         {
-          id:982,
-          text:'冰淇淋'
-        },
-         {
-          id:983,
-          text:'咖啡'
-        },
-         {
-          id:984,
-          text:'面包'
-        }
-      ],
+      categorylist: [],
     };
   },
   mounted() {
-    console.log('lynxStore>>>>',window.localStorage.getItem("store"))
-    let obj = {};
-    obj.info= '蛋糕';
-		obj.type='type';
-		this.$ajax.find(obj).then((data)=>{
-      //console.log('>>>',data);
-      this.$router.push(`/mall/category/${this.categorylist[0].text}`);
-    });
+    this.$ajax.getAllType().then(data => {
+      if(data.status === 200 && data.data.res_code ===1){
+        this.categorylist = data.data.res_body.data;
+      }else{
+        Toast('获取列表失败')
+      }
+      let obj = {};
+      obj.info= this.categorylist[0]._id;
+      obj.type='type';
+      this.$ajax.find(obj).then((data)=>{
+        //console.log('>>>',data);
+        this.$router.push(`/mall/category/${this.categorylist[0]._id}`);
+      });
+    })
   },
 };
 </script>
@@ -73,6 +62,9 @@ export default {
     padding-top: 10px;
     display: flex;
     overflow-x: hidden;
+    background: #fff;
+    overflow: hidden;
+    height: 90%;
     &-left{
       display: flex;
       flex-direction: column;
@@ -90,6 +82,7 @@ export default {
     }
     &-right{
       flex: 1;
+      overflow-y: auto;
     }
   }
 }

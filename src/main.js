@@ -10,6 +10,10 @@ import './libs/reset.scss';
 import './libs/icon.scss';
 import * as ajax from './services';
 import { Picker } from 'mint-ui';
+import 'vue-area-linkage/dist/index.css';
+import VueAreaLinkage from 'vue-area-linkage';
+
+Vue.use(VueAreaLinkage);
 
 Vue.component(Picker.name, Picker);
 Vue.prototype.$ajax = ajax;

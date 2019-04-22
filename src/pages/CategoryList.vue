@@ -25,7 +25,9 @@ export default {
   data() {
     return {
       currentText: '',
+      currentId: '',
       CategoryTypeList: [],
+      categoryArr:[]
     };
   },
   beforeRouteUpdate(to, from, next) {
@@ -33,8 +35,20 @@ export default {
     // this.$ajax.getCategoryTypeList(this.currentId).then((resp) => {
     //   this.CategoryTypeList = resp;
     // });
+    this.$ajax.getAllType().then(data => {
+        if(data.status === 200 && data.data.res_code ===1){
+          this.categoryArr = data.data.res_body.data;
+          this.categoryArr.map( item => {
+            if(item._id === this.currentId){
+              this.currentText = item.name
+            }
+          })
+        }else{
+          Toast('获取列表失败')
+        }
+      })
     let obj = {};
-    obj.info=this.currentText;
+    obj.info=this.currentId;
 		obj.type='type';
 		this.$ajax.find(obj).then((data)=>{
 			if(data.status === 200 && data.data.res_code ===1){
@@ -55,12 +69,11 @@ export default {
     handleImg(url){
       return 'http://localhost:3000'+url;
     },
-    getCategoryTypeListText(text) {
-      this.currentText= text;
+    getCategoryTypeListText(id) {
+      this.currentId= id;
     },
     //进入详情页
     toDetail(item) {
-      //console.log('item',item)
       //将商品详情存入本地
       window.localStorage.setItem('detail',JSON.stringify(item))
       this.$router.push(`/detail/${item._id}`);
@@ -68,19 +81,31 @@ export default {
   },
   mounted() {
      this.getCategoryTypeListText(this.$route.params.id);
-    // this.$ajax.getCategoryTypeList(this.currentId).then((resp) => {
-    //   this.CategoryTypeList = resp;
-    // });
+      // this.$ajax.getCategoryTypeList(this.currentId).then((resp) => {
+      //   this.CategoryTypeList = resp;
+      // });
+      this.$ajax.getAllType().then(data => {
+        if(data.status === 200 && data.data.res_code ===1){
+          this.categoryArr = data.data.res_body.data;
+          this.categoryArr.map( item => {
+            if(item._id === this.currentId){
+              this.currentText = item.name
+            }
+          })
+        }else{
+          Toast('获取列表失败')
+        }
+      })
+
     let obj = {};
-    obj.info=this.currentText;
+    obj.info=this.currentId;
 		obj.type='type';
 		this.$ajax.find(obj).then((data)=>{
-      //console.log('>>>2',data);
+      console.log('>>>2',data);
       if(data.status === 200 && data.data.res_code ===1){
         let store = window.localStorage.getItem("store");
-        let arr = data.data.res_body.data;
         let newArr = [];
-        newArr = arr.filter((item)=>{
+        newArr = data.data.res_body.data.filter((item)=>{
           return item.store == store;
         })
         this.CategoryTypeList = newArr;

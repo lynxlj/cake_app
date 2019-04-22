@@ -177,12 +177,32 @@ export default {
         return;
       }
       if (this.registername.length !== 0 && this.registerpasswordone.length !== 0 && this.registerpasswordone == this.registerpasswordtwo && this.registertruename.length !==0) {
-        register({name: this.registername,true_name:this.registertruename ,password: this.registerpasswordone , level: 0}).then(data => {
-          if(data.data.res_code ===1 ){
-            Toast('注册成功!');
-            this.closeRegisterBox();
-          }else{
-            Toast('注册失败!');
+        //用户名唯一
+        findData({name:'',level:0}).then(data => {
+          let nameArr = [];
+          console.log(data)
+          if(data.status === 200){
+            nameArr = data.data.res_body.data;
+            let isHave = false;
+            nameArr.map( item => {
+              if(item.name == this.registername){
+                isHave = true;
+              }
+            })
+            if(isHave){
+              Toast('该用户名已存在，请重新输入');
+            }else{
+              register({name: this.registername,true_name:this.registertruename ,password: this.registerpasswordone , level: 0}).then(data => {
+                if(data.data.res_code ===1 ){
+                  Toast('注册成功!');
+                  this.closeRegisterBox();
+                }else{
+                  Toast('注册失败!');
+                }
+              })
+            }
+            }else{
+              Toast('注册失败')
           }
         })
       }

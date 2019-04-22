@@ -70,6 +70,24 @@
     <div class="account" v-show="dt_isShowAccount && accountList.length !==0">
       <div @click.stop='toBackCartFn' class="account-header"><i class="iconfont icon-back"></i><span>我的订单</span></div>
       <div class="account-body">
+        <div class="address">
+          <div class="address-header">填写收货地址</div>
+          <div class="address-body">
+            <div class="address-body-content">
+              收件人姓名:
+              <input type="text" v-model="address_name">
+            </div>
+            <div class="address-body-content">
+              收件人联系方式:
+              <input type="text" v-model="address_tel">
+            </div>
+            <area-select v-model="selected" :data="pca" type='text'></area-select> 
+            <div class="address-body-content">
+              详细地址:
+              <input type="text" v-model="address_content">
+            </div>
+          </div>
+        </div>
         <div class="account-body-item">
           <ul class="account-body-item-header-first">
             <li>订单编号</li>
@@ -124,6 +142,8 @@ import {
   findData,
   updateData,
  } from '@/services';
+import { AreaCascader } from "vue-area-linkage"
+import { pca, pcaa } from 'area-data';
 
 export default {
   name: 'cart',
@@ -141,6 +161,12 @@ export default {
       dt_isShowAccount:false,
       //是否显示付款界面
       dt_isShowPayment:false,
+      pca:pca,
+      pcaa:pcaa,
+      selected:[],
+      address_content:'',
+      address_name:'',
+      address_tel:'',
     };
   },
   computed: {
@@ -164,7 +190,7 @@ export default {
         });
       }, 2000);
     },
-    onTouchEnd() {
+    onTouchEnd(e) {
       clearTimeout(this.timer);
     },
     // toDetail(pro) {
@@ -339,8 +365,12 @@ export default {
     },
     //确认订单
     handleConfirmOrder(){
-      //显付款界面
-      this.dt_isShowPayment = true;
+      if(this.selected.length == 0||this.address_content==''||this.address_name==''||this.address_tel==''){
+        this.$toast("请完整填写信息");
+      }else{
+        //显付款界面
+        this.dt_isShowPayment = true;
+      }
     },
     //付款确定购买
     handleConfirmAccount(){
@@ -355,6 +385,12 @@ export default {
             })
           }
           this.cartList = cart;
+          let addressObj = this.selected[0]+this.selected[1]+this.address_content
+          this.accountList.map(item => {
+            item.address_name = this.address_name;
+            item.address_tel = this.address_tel;
+            item.address_content = addressObj;
+          })
           cake.unshift(this.accountList);
           let userInfo = JSON.parse(window.localStorage.getItem('user-token')) || {};
           userInfo.cake = cake;
@@ -403,11 +439,26 @@ export default {
   },
   mounted(){
     this.cartList = JSON.parse(window.localStorage.getItem('user-token')).cart || [];
-    window.localStorage.setItem('ih-cart', JSON.stringify(this.cartList));
-    this.cartList.map((item ,index) => {
-        item.isChecked = false;
-      })
-    //console.log('购物车mounted',this.cartList)
+    let typeArr = [];
+    this.$ajax.getAllType().then(data => {
+      if(data.status === 200 && data.data.res_code ===1){
+        typeArr = data.data.res_body.data;
+        this.cartList.forEach(item => {
+          typeArr.map((ele) => {
+              if(item.caketype == ele._id){
+                item.caketype = ele.name;
+              }
+          });
+        })
+        window.localStorage.setItem('ih-cart', JSON.stringify(this.cartList));
+        this.cartList.map((item ,index) => {
+            item.isChecked = false;
+          })
+      }else{
+        Toast('获取列表失败')
+      }
+    })
+
   }
 };
 </script>
@@ -572,7 +623,7 @@ export default {
   }
   &-body{
     font-size: 14px;
-    height: 100%;
+    height: 75%;
     overflow-y: auto;
     color: #322418;
     &-item{
@@ -677,6 +728,28 @@ export default {
     border-radius: 10px;
     background: #fc655e;
     color: #fff;
+  }
+}
+.address{
+  padding: 10px;
+  &-header{
+    border-bottom:1px solid #efefef;
+    height: 30px;
+    line-height: 30px; 
+  }
+  input{
+    border-color: #fefefe;
+    width: 100%;
+    margin-top: 5px;
+    height: 20px;
+    margin-bottom: 10px;
+  }
+  &-body{
+    padding-top: 10px;
+    &-content{
+      padding-left: 10px;
+      margin-top: 10px;
+    }
   }
 }
 </style>

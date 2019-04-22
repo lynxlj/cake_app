@@ -28,22 +28,19 @@
         <i class="iconfont icon-icon_dindgan"></i>
         <span>我的订单</span>
       </div>
-      <div class="tab-item">
+      <!-- <div class="tab-item" @click.stop="toAddressFn()">
         <i class="iconfont icon-gongdan"></i>
-        <span>我租到的</span>
-      </div>
-      <div class="tab-item">
+        <span>我的地址</span>
+      </div> -->
+      <div class="tab-item" @click.stop="toMyMessageFn()">
         <i class="iconfont icon-aixin"></i>
-        <span>收藏关注</span>
-      </div>
-      <div class="tab-item">
-        <i class="iconfont icon-shequ"></i>
-        <span>我的社区</span>
+        <span>我的信息</span>
       </div>
     </div>
+    <!-- 订单 -->
     <div class="order" v-show="dt_isShowOrder">
       <div @click.stop='toBackMineFn' class="order-header"><i class="iconfont icon-back"></i><span>我的订单</span></div>
-      <div class="order-body">
+      <div class="order-body" v-show="isHaveOrder">
         <div class="order-body-item" v-for="(item,index) in orderList" :key="index">
           <ul class="order-body-item-header-two">
             <li>订单编号</li>
@@ -52,6 +49,20 @@
           <ul class="order-body-item-list-two" >
             <li>{{item[0].order_id}}</li>
             <li>{{item[0].order_time}}</li>
+          </ul>
+          <ul class="order-body-item-header-two">
+            <li>收件人姓名</li>
+            <li>收件人联系方式</li>
+          </ul>
+          <ul class="order-body-item-list-two" >
+            <li>{{item[0].address_name}}</li>
+            <li>{{item[0].address_tel}}</li>
+          </ul>
+          <ul class="order-body-item-header-one">
+            <li>收件地址</li>
+          </ul>
+          <ul class="order-body-item-list-one">
+            <li>{{item[0].address_content}}</li>
           </ul>
           <ul class="order-body-item-header-two">
             <li>订单状态</li>
@@ -80,17 +91,47 @@
           <div class="order-total-price">总金额：{{handleTotalPriceFn(item)}}</div>
         </div>
       </div>
+      <div v-show="!isHaveOrder" class="order-no">
+        <p>暂无订单</p>
+        <img src="../../images/nomore.png" alt="">
+      </div>
     </div>
+    <!-- 评论 -->
     <div class="comment" v-show="dt_isShowComment">
       <div @click.stop='toBackMineFn' class="comment-header"><i class="iconfont icon-back"></i><span>我的评价</span></div>
       <div class="comment-body" v-if='!isAllcomment'>
-        <div class="comment-body-item" v-for="(item) in commentList" :key="item.id" v-show="!item.isComment">
+        <div class="comment-body-item" v-for="(item,index) in commentList" :key="item.id" v-show="!item.isComment">
           <div class="comment-body-item-name">商品名称：{{item.cakename}}</div>
-          <textarea id='commentvalue' name="" cols="57" rows="10" class="comment-body-item-conetnt" placeholder="来评价这款商品吧～～～"></textarea>
-          <div class="comment-confirm" @click="toConfirmCommentFn(item)">确定评价</div>
+          <textarea name="" cols="57" rows="10" class="comment-body-item-conetnt commentvalue" placeholder="来评价这款商品吧～～～"></textarea>
+          <div class="comment-confirm" @click="toConfirmCommentFn(item,index)">确定评价</div>
         </div>
       </div>
       <div class="comment-body-no" v-else></div>
+    </div>
+    <!-- 地址 -->
+    <div class="address" v-show="dt_isShowAddress">
+      <div @click.stop='toBackMineFn' class="address-header"><i class="iconfont icon-back"></i><span>我的地址</span></div>
+      <div class="address-body">
+        <div class="address-body-item">
+
+        </div>
+      </div>
+      <div class="address-confirm">增加订单</div>
+    </div>
+    <!-- 信息 -->
+    <div class="message" v-show="dt_isShowMyMessage">
+      <div @click.stop='toBackMineFn' class="message-header"><i class="iconfont icon-back"></i><span>我的信息</span></div>
+      <div class="message-body">
+        用户名
+      <input type="text" v-model="registername" readonly="readonly">
+      性别
+      <input type="text" v-model="sex" placeholder="输入性别">
+      年龄
+      <input type="text" v-model="age" placeholder="输入年龄">
+      电话
+      <input type="number" v-model="tel" placeholder="输入电话">
+      </div>
+      <div class="submit" @click.stop="submitMessage">确定修改</div>
     </div>
   </div>
 </template>
@@ -114,11 +155,19 @@ export default {
       dt_isShowOrder:false,
       //是否显示评价页面
       dt_isShowComment:false,
+      //是否显示地址页面
+      dt_isShowAddress:false,
+      dt_isShowMyMessage:false,
       orderList:[],
       //评价列表
       commentList:[],
       //该订单下是否全部评论完
       isAllcomment: false,
+      isHaveOrder:false,
+      registername:JSON.parse(localStorage.getItem('user-token')).name || '',
+      sex:JSON.parse(localStorage.getItem('user-token')).sex || '',
+      age:JSON.parse(localStorage.getItem('user-token')).age || '',
+      tel:JSON.parse(localStorage.getItem('user-token')).tel || '',
     }
   },
   computed: {
@@ -127,6 +176,38 @@ export default {
   mounted(){
   },
   methods: {
+    //修改信息
+    submitMessage(){
+      let data = `name=${this.registername}&sex=${this.sex}&age=${this.age}&tel=${this.tel}&level=0`;
+      updateData(data).then((resp)=>{
+        if(resp.data.res_code===1){
+          let _data = `name=${this.registername}&level=0`;
+          findData(_data).then( _resp => {
+            if(_resp.data.res_code===1){
+              localStorage.setItem('user-token',JSON.stringify(_resp.data.res_body.data[0]));
+              Toast("修改信息成功");
+              this.dt_isShowMyMessage = false; 
+            }
+          })
+        }else{
+          Toast("修改信息失败");
+        }
+        
+      })
+    },
+    //我的信息
+    toMyMessageFn(){
+      if(!this.isLogin){
+        Toast('请先登录')
+        return;
+      } 
+      this.dt_isShowMyMessage = true; 
+    },
+    //显示地址
+    toAddressFn(){
+      return;
+      this.dt_isShowAddress = true;  
+    },
     //该订单是否全部评论完毕
     handleIsAllCommentFn(){
       this.isAllComment = this.commentList.every(item => {
@@ -139,10 +220,10 @@ export default {
        return (Math.random()*10000000).toString(16).substr(0,4)+'-'+(new Date()).getTime()+'-'+Math.random().toString().substr(2,5);
     },
     //确定评价
-    toConfirmCommentFn(item){
-      console.log(item,document.getElementById('commentvalue').value)
+    toConfirmCommentFn(item,index){
+      console.log(item,document.getElementsByClassName('commentvalue')[index].value)
       let userInfo = JSON.parse(window.localStorage.getItem('user-token')) || {};
-      if(!document.getElementById('commentvalue').value){
+      if(!document.getElementsByClassName('commentvalue')[index].value){
         Toast("评价内容不能为空")
       }else{
         let obj = {};
@@ -155,7 +236,7 @@ export default {
             let commentArr = curData.comment;
             let commentNew = {};
             commentNew.id = this.fcreateRandomId();
-            commentNew.content = document.getElementById('commentvalue').value;
+            commentNew.content = document.getElementsByClassName('commentvalue')[index].value;
             commentNew.user_name = userInfo.name;
             commentArr.unshift(commentNew)
             this.$ajax.update({_id:item.id,comment:JSON.stringify(commentArr)}).then(data => {
@@ -187,6 +268,7 @@ export default {
                       if(data.data.res_code === 1){
                         Toast('评论成功');
                         item.isComment = true;
+                        this.dt_isShowComment = false;
                       }else{
                         Toast('评论失败');
                       }
@@ -296,14 +378,26 @@ export default {
     toBackMineFn(){
       this.dt_isShowOrder = false;
       this.dt_isShowComment = false;
+      this.dt_isShowAddress = false;
+      this.dt_isShowMyMessage = false;
     },
     //订单
     toOrderFn(){
+      this.isHaveOrder = false;
       if(!this.isLogin){
         Toast('请先登录')
         return;
       } 
       this.dt_isShowOrder = true;
+      let username = JSON.parse(window.localStorage.getItem('user-token')).name;
+      this.$ajax.findData({name:username,level:0}).then(data => {
+        if(data.status === 200){
+          if(data.data.res_body.data[0].cake.length !== 0){
+            this.isHaveOrder = true;
+            window.localStorage.setItem('order', JSON.stringify(data.data.res_body.data[0].cake));
+          }
+        }
+      })
       this.orderList = JSON.parse(window.localStorage.getItem('order'))
     }
   }
@@ -425,6 +519,16 @@ export default {
             text-align: center;
           }
         }
+        &-one{
+          height: 40px;
+          line-height: 40px;
+          background: #e6e6e6;
+          li{
+            float: left;
+            width: 100%;
+            text-align: center;
+          }
+        }
         height: 40px;
         line-height: 40px;
         background: #e6e6e6;
@@ -444,6 +548,19 @@ export default {
             text-align: center;
             float: left;
             width: 180px;
+            overflow: hidden;
+            text-overflow:ellipsis;
+            white-space: nowrap;
+          }
+        }
+        &-one{
+          border-bottom: 1px solid #e6e6e6;
+          font-size: 12px;
+          height: 30px;
+          line-height: 30px;
+          li{
+            text-align: center;
+            width: 100%;
             overflow: hidden;
             text-overflow:ellipsis;
             white-space: nowrap;
@@ -542,6 +659,132 @@ export default {
       float: right;
       margin-right: 10px;
     }
+  }
+}
+.order-no{
+  padding-top: 100px;
+  text-align: center;
+  img{
+    width: 300px;
+
+  }
+}
+.address{
+  padding-left: 10px;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  background: #efefef;
+  &-header{
+    border-bottom: 1px solid #e6e6e6;
+    height: 50px;
+    line-height: 50px;
+    position: relative;
+    span{
+      width: 100px;
+      text-align: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin: auto;
+    }
+    .icon-back{
+      float: left;
+      margin-left: 10px;
+    }
+  }
+  &-body{
+    padding-top: 10px;
+    padding-bottom: 20px;
+    height: 100%;
+    overflow-y: auto;
+    &-item{
+      padding-bottom:50px; 
+      &-name{
+        margin-bottom: 10px;
+      }
+    }
+  }
+  .address-confirm{
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      width: 80px;
+      height: 30px;
+      color: white;
+      background: #fc655e;
+      text-align: center;
+      line-height: 30px;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+}
+.message{
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  background: #efefef;
+  &-header{
+    border-bottom: 1px solid #e6e6e6;
+    height: 50px;
+    line-height: 50px;
+    position: relative;
+    span{
+      width: 100px;
+      text-align: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin: auto;
+    }
+    .icon-back{
+      float: left;
+      margin-left: 10px;
+    }
+  }
+  &-body{
+    padding-top: 10px;
+    padding-bottom: 20px;
+    height: 100%;
+    overflow-y: auto;
+    &-item{
+      padding-bottom:50px; 
+      &-name{
+        margin-bottom: 10px;
+      }
+    }
+  }
+  input{
+    display: block;
+    width: 80%;
+    height: 40px;
+    margin: 5px auto;
+    border-color: #efefef;
+  }
+  .submit{
+    width: 100%;
+    height: 40px;
+    position: fixed;
+    bottom: 0;
+    text-align: center;
+    line-height: 40px;
+    background: #fc655e;
+    color: #fff;
+
   }
 }
 </style>

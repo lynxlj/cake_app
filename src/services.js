@@ -40,3 +40,4 @@ export const register = opts => ajax.post('/api/register', opts);
 export const find = opts => ajax.post('/api/cake/find', opts);
 export const update = opts => ajax.post('/api/cake/update', opts);
 export const getAllStore = () => ajax.post('api/store/findAll');
+export const getAllType = () => ajax.post('api/type/findAll');

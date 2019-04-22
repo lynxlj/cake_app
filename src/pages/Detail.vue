@@ -36,11 +36,11 @@
         <i class="iconfont icon-msg"></i>
         <i class="iconfont icon-aixin"></i>
       </div>
-      <div class="ih-detail-bottom-middle" @click='handleAddToCart(detail)'>
-        加入购物车
+      <div class="ih-detail-bottom-middle" >
+        
       </div>
-      <div class="ih-detail-bottom-right">
-        立即购买
+      <div class="ih-detail-bottom-right" @click='handleAddToCart(detail)'>
+        加入购物车
       </div>
     </div>
   </div>
@@ -216,7 +216,6 @@ export default {
     }
     &-middle{
       color: $font-color-active;
-      border-left: 1px solid $border-color
     }
     &-right{
       background: $font-color-active;
